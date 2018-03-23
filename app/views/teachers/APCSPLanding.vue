@@ -47,7 +47,7 @@
               .form-group
                 label(for="email") Email
                 input#email.form-control(type="" v-model="email")
-              nces-search-input(@navSearchChoose="onChooseSchool", :initialValue="organization", label="School")
+              nces-search-input(@navSearchChoose="onChooseSchool", :initialValue="organization", label="School", @updateValue="onUpdateSchoolValue")
               .form-group
                 label(for="num-apcsp-students") Estimated # of AP<sup>®</sup> CSP students for 2018-2019 school year
                 input#num-apcsp-students.form-control(type="number", v-model="numAPCSPStudents")
@@ -142,6 +142,9 @@
         _.forIn(choice, (value, key) =>
           @["nces_#{key}"] = value
         )
+
+      onUpdateSchoolValue: (name, newValue) ->
+        @organization = newValue
       
     computed:
       submitButtonDisabled: ->
@@ -153,7 +156,7 @@
         lastTrialRequest = _.last(trialRequests)
         properties = lastTrialRequest?.properties || {}
         _.assign(@, _.pick(properties, 'email', 'organization'))
-        @name = _.string.trim(properties.firstName + ' ' + properties.lastName)
+        @name = _.string.trim((properties.firstName || '') + ' ' + (properties.lastName || ''))
       )
       unless me.isAnonymous()
         api.prepaids.getOwn().then((prepaids) =>

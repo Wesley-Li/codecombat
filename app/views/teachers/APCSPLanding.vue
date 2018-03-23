@@ -23,15 +23,46 @@
 
     p We are currently accepting teachers for our summer professional development cohort in preparation for the 2018-2019 school year. Request access to our curriculum to learn more.
 
+    .text-center
+      button.btn.btn-primary.btn-lg.text-center(
+        data-toggle="modal"
+        data-target="#request-access-modal"
+      )
+        | Request Access
 
-    p.text-center
-      strong
-        | Email
-        =" "
-        a(mailto="jane@codecombat.com") jane@codecombat.com
-        =" "
-        | for details
+    #request-access-modal.modal.fade
+      .modal-dialog
+        .modal-content.style-flat
+          .modal-header
+            .button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
+            h3 Request Access
 
+          .modal-body
+            div(v-if='state === "sending"') Sending...
+            div(v-else-if='state === "sent"') Thank you for requesting access to our curriculum for AP® Computer Science Principles. We will be in touch shortly with next steps.
+            form(@submit.prevent="onSubmit" v-else)
+              .form-group
+                label(for="name") Name
+                input#name.form-control(type="" v-model="name")
+              .form-group
+                label(for="email") Email
+                input#email.form-control(type="" v-model="email")
+              nces-search-input(@navSearchChoose="onChooseSchool", :initialValue="organization", label="School")
+              .form-group
+                label(for="num-apcsp-students") Estimated # of AP<sup>®</sup> CSP students for 2018-2019 school year
+                input#num-apcsp-students.form-control(type="number", v-model="numAPCSPStudents")
+              .form-group
+                label(for="apcsp-experience") Brief summary of your previous AP<sup>®</sup> CSP experience 
+                textarea#apcsp-experience.form-control(v-model="apcspExperience")
+
+          .modal-footer(v-if='state === "entering"')
+            button.btn.btn-primary.btn-lg(
+            type="button",
+            aria-hidden="true",
+            @click="onSubmit",
+            :disabled="submitButtonDisabled"
+            ) Submit
+            
     hr
 
     h4.text-center
@@ -65,11 +96,69 @@
 </template>
 
 <script lang="coffee">
+  api = require 'core/api'
+  NcesSearchInput = require 'views/core/CreateAccountModal/teacher/NcesSearchInput'
+  
   module.exports = Vue.extend({
-    data: -> {}
+    data: -> {
+      email: '',
+      name: '',
+      organization: '',
+      nces_phone : '',
+      nces_students : '',
+      nces_district_students : '',
+      nces_district_schools : '',
+      nces_district_id : '',
+      nces_district : '',
+      nces_name : '',
+      nces_id : '',
+      numAPCSPStudents: '',
+      apcspExperience: '',
+      hasPrepaids: '',
+      state: 'entering' # or 'sending', 'sent'
+    }
+    
+    components: {
+      NcesSearchInput
+    }
+    
+    methods:
+      onSubmit: ->
+        lines = []
+        _.forIn(@$data, (value, key) =>
+          return if key in ['state']
+          if value
+            lines.push "#{_.string.humanize(key)}: #{value}"
+        )
+        message = lines.join('\n')
+        email = @email
+        name = @name
+        console.log 'Sending message:\n\n' + message
+        @state = 'sending'
+        api.contact.send({message, email, name}).then(() => @state = 'sent')
+        
+      onChooseSchool: (displayKey, choice) ->
+        @organization = choice.name
+        _.forIn(choice, (value, key) =>
+          @["nces_#{key}"] = value
+        )
+      
+    computed:
+      submitButtonDisabled: ->
+        not _.every([@email, @name, @organization, @apcspExperience, @numAPCSPStudents])
 
     created: ->
-
+      api.trialRequests.getOwn().then((trialRequests) =>
+        trialRequests = _.sortBy(trialRequests, (t) -> t.id)
+        lastTrialRequest = _.last(trialRequests)
+        properties = lastTrialRequest?.properties || {}
+        _.assign(@, _.pick(properties, 'email', 'organization'))
+        @name = _.string.trim(properties.firstName + ' ' + properties.lastName)
+      )
+      unless me.isAnonymous()
+        api.prepaids.getOwn().then((prepaids) =>
+          @hasPrepaids = _.uniq(prepaids.map((p) -> p.type)).join(', ')
+        )
   })
 
 </script>
@@ -120,5 +209,10 @@
     #registered
       margin-top: 60px
       font-size: 16px
-
+      
+    .modal h3
+      margin-top: 0
+  
+    .modal span
+      font-weight: bold
 </style>

@@ -39,14 +39,14 @@
 
           .modal-body
             div(v-if='state === "sending"') Sending...
-            div(v-else-if='state === "sent"') Thank you for requesting access to our curriculum for AP® Computer Science Principles. We will be in touch shortly with next steps.
+            div(v-else-if='state === "sent"') Thank you for expressing interest in our curriculum for AP<sup>®</sup> Computer Science Principles. Our school specialists will be in touch shortly with next steps.
             form(@submit.prevent="onSubmit" v-else)
               .form-group
                 label(for="name") Name
-                input#name.form-control(type="" v-model="name")
+                input#name.form-control(v-model="name" autocomplete="name")
               .form-group
                 label(for="email") Email
-                input#email.form-control(type="" v-model="email")
+                input#email.form-control(type="email" v-model="email" autocomplete="email")
               nces-search-input(@navSearchChoose="onChooseSchool", :initialValue="organization", label="School", @updateValue="onUpdateSchoolValue")
               .form-group
                 label(for="num-apcsp-students") Estimated # of AP<sup>®</sup> CSP students for 2018-2019 school year
@@ -135,7 +135,7 @@
         name = @name
         console.log 'Sending message:\n\n' + message
         @state = 'sending'
-        api.contact.send({message, email, name}).then(() => @state = 'sent')
+        api.contact.sendAPCSPAccessRequest({message, email, name}).then(() => @state = 'sent')
         
       onChooseSchool: (displayKey, choice) ->
         @organization = choice.name

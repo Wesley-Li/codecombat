@@ -21,7 +21,7 @@
       li Guidance on all aspects of the course, including the AP<sup>®</sup> CSP Performance Tasks and how to utilize practice opportunities to set your students up for success.
       li Real, typed code in either JavaScript or Python to support your students’ creativity.
 
-    p We are currently accepting new teachers for our summer 2018 professional development cohort in preparation for the 2018-2019 school year.
+    p We are currently accepting teachers for our summer professional development cohort in preparation for the 2018-2019 school year. Request access to our curriculum to learn more.
 
 
     p.text-center
@@ -34,7 +34,9 @@
 
     hr
 
-    h3.text-center Curriculum Specifications
+    h4.text-center
+      strong
+        Curriculum Specifications
 
     h5 Programming Languages
     p CodeCombat’s curiculum can be used to learn programming in either JavaScript or Python, which teachers will choose upon creation of their classroom inside the CodeCombat platform.
@@ -56,7 +58,7 @@
       =""
       | ). We recommend that licenses are obtained by early August of the coming school year so students can begin as early as the first day of the fall semester.
 
-    p
+    p#registered
       i AP<sup>®</sup> and Advanced Placement<sup>®</sup> are registered trademarks of the College Board. Used with permission.
 
 
@@ -92,6 +94,7 @@
 
     h5
       margin: 30px 0 5px
+      font-weight: normal
 
     ul
       margin: 10px 0 25px 0
@@ -113,4 +116,9 @@
       width: 150px
       margin-right: 30px
       align-self: center
+
+    #registered
+      margin-top: 60px
+      font-size: 16px
+
 </style>
